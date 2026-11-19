@@ -138,15 +138,29 @@
   </div>
   </div>
 
-  <!-- Pestaña: 4-20 mA -->
+  <!-- Pestaña: interpolación -->
   <section id="tab-ma" class="hidden">
-    <div class="seg mmode">
-      <button data-mm="v2ma" class="on" data-i18n="v2ma"></button>
-      <button data-mm="ma2v" data-i18n="ma2v"></button>
-    </div>
     <div class="grid2">
-      <div><label for="mlo" data-i18n="lrv"></label><input id="mlo" type="number" inputmode="decimal" step="any" value="0"></div>
-      <div><label for="mhi" data-i18n="urv"></label><input id="mhi" type="number" inputmode="decimal" step="any" data-i18n-ph="ex500"></div>
+      <div><label for="ux" data-i18n="unitX"></label><input id="ux" type="text" value="mA" style="font-size:18px"></div>
+      <div><label for="uy" data-i18n="unitY"></label><input id="uy" type="text" data-i18n-ph="exUnit" style="font-size:18px"></div>
+    </div>
+    <div class="add" style="margin-top:0">
+      <h3 data-i18n="p1"></h3>
+      <div class="grid2" style="margin:0">
+        <div><label for="x1" class="lx"></label><input id="x1" type="number" inputmode="decimal" step="any" value="4"></div>
+        <div><label for="y1" class="ly"></label><input id="y1" type="number" inputmode="decimal" step="any" value="0"></div>
+      </div>
+    </div>
+    <div class="add">
+      <h3 data-i18n="p2"></h3>
+      <div class="grid2" style="margin:0">
+        <div><label for="x2" class="lx"></label><input id="x2" type="number" inputmode="decimal" step="any" value="20"></div>
+        <div><label for="y2" class="ly"></label><input id="y2" type="number" inputmode="decimal" step="any" data-i18n-ph="ex500"></div>
+      </div>
+    </div>
+    <div class="seg mmode" style="margin-top:16px">
+      <button data-mm="x2y" class="on" id="bx2y"></button>
+      <button data-mm="y2x" id="by2x"></button>
     </div>
     <div class="field">
       <label for="min" id="minLbl"></label>
@@ -214,9 +228,9 @@
   let pct = 5, vol = 10;
   const I18N = {
     en: {
-      title:'Tolerance Calculator', sub:'Secondaries, chlorine standard additions, open-channel flow and 4-20 mA.',
-      tabTol:'Tolerance', tabCl:'Chlorine', tabFlow:'Flow', tabMa:'mA', tabCalc:'Calc',
-      v2ma:'Value → mA', ma2v:'mA → Value', lrv:'Value at 4 mA (LRV)', urv:'Value at 20 mA (URV)', inVal:'Process value', inMa:'Current (mA)', outMa:'Current', outVal:'Value', span:'% of span', enterRange:'Enter the range (4 and 20 mA)…', enterVal:'Enter a value…', maNote:'mA = 4 + 16 × (value − LRV) ÷ (URV − LRV). Use the range configured in the transmitter (flow, level, pressure, etc.).',
+      title:'Tolerance Calculator', sub:'Secondaries, chlorine standard additions, open-channel flow and interpolation.',
+      tabTol:'Tolerance', tabCl:'Chlorine', tabFlow:'Flow', tabMa:'Interp.', tabCalc:'Calc',
+      unitX:'Unit X', unitY:'Unit Y', exUnit:'GPM, psi, °F…', p1:'Point 1', p2:'Point 2', enterPts:'Enter both points…', enterVal:'Enter a value…', known:'Known', result:'Result', span:'% of span', maNote:'Linear interpolation: Y = Y1 + (X − X1) × (Y2 − Y1) ÷ (X2 − X1). Works with any units, e.g. 4-20 mA to GPM, psi, °F, ft.',
       type:'Type', rect:'Rectang.', width:'Crest width (ft)', contr:'Contractions', none:'None', with2:'With 2',
       level:'Level', in:'in', ft:'ft', maOut:'4-20 mA output', sigRep:'Signal represents',
       v4:'Value at 4 mA', v20:'Value at 20 mA', should:'Should read',
@@ -235,9 +249,9 @@
       psz:{ '3':'3 in','6':'6 in','9':'9 in','12':'12 in (1 ft)','18':'18 in (1.5 ft)','24':'24 in (2 ft)' }
     },
     es: {
-      title:'Calculadora de tolerancia', sub:'Secundarios, adición estándar de cloro, flujo en canal abierto y 4-20 mA.',
-      tabTol:'Tolerancia', tabCl:'Cloro', tabFlow:'Flujo', tabMa:'mA', tabCalc:'Calc',
-      v2ma:'Valor → mA', ma2v:'mA → Valor', lrv:'Valor a 4 mA (LRV)', urv:'Valor a 20 mA (URV)', inVal:'Valor del proceso', inMa:'Corriente (mA)', outMa:'Corriente', outVal:'Valor', span:'% del span', enterRange:'Escribe el rango (4 y 20 mA)…', enterVal:'Escribe un valor…', maNote:'mA = 4 + 16 × (valor − LRV) ÷ (URV − LRV). Usa el rango configurado en el transmisor (flujo, nivel, presión, etc.).',
+      title:'Calculadora de tolerancia', sub:'Secundarios, adición estándar de cloro, flujo en canal abierto e interpolación.',
+      tabTol:'Tolerancia', tabCl:'Cloro', tabFlow:'Flujo', tabMa:'Interp.', tabCalc:'Calc',
+      unitX:'Unidad X', unitY:'Unidad Y', exUnit:'GPM, psi, °F…', p1:'Punto 1', p2:'Punto 2', enterPts:'Escribe los dos puntos…', enterVal:'Escribe un valor…', known:'Conocido', result:'Resultado', span:'% del span', maNote:'Interpolación lineal: Y = Y1 + (X − X1) × (Y2 − Y1) ÷ (X2 − X1). Sirve con cualquier unidad, por ejemplo 4-20 mA a GPM, psi, °F, pies.',
       type:'Tipo', rect:'Rectang.', width:'Ancho de la cresta (pies)', contr:'Contracciones', none:'Sin', with2:'Con 2',
       level:'Nivel', in:'pulg', ft:'pies', maOut:'Salida 4-20 mA', sigRep:'La señal representa',
       v4:'Valor a 4 mA', v20:'Valor a 20 mA', should:'Debe dar',
@@ -429,26 +443,28 @@
   $('fread').addEventListener('input', checkFlow);
   fillSizes(); calcFlow();
 
-  // ---- 4-20 mA ----
-  let mmode = 'v2ma';
+  // ---- Interpolación lineal ----
+  let mmode = 'x2y';
+  const esc = x => x.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   function calcMa(){
-    $('minLbl').textContent = mmode === 'v2ma' ? t('inVal') : t('inMa');
-    $('min').placeholder = mmode === 'v2ma' ? t('ex500') : (lang === 'es' ? 'Ej. 12' : 'e.g. 12');
-    const lo = num($('mlo')), hi = num($('mhi')), x = num($('min')), out = $('mout');
-    if (isNaN(lo) || isNaN(hi) || hi === lo) { out.innerHTML = '<div class="empty">' + t('enterRange') + '</div>'; return; }
-    if (isNaN(x)) { out.innerHTML = '<div class="empty">' + t('enterVal') + '</div>'; return; }
-    let ma, v;
-    if (mmode === 'v2ma') { v = x; ma = 4 + 16 * (v - lo) / (hi - lo); }
-    else { ma = x; v = lo + (ma - 4) / 16 * (hi - lo); }
-    const sp = (ma - 4) / 16 * 100;
-    const big = mmode === 'v2ma'
-      ? '<div class="row"><span>' + t('outMa') + '</span><b>' + fmt(ma, 3) + ' mA</b></div>'
-      : '<div class="row"><span>' + t('outVal') + '</span><b>' + fmt(v, 3) + '</b></div>';
-    out.innerHTML = '<div class="results">' + big +
+    const ux = $('ux').value.trim() || 'X', uy = $('uy').value.trim() || 'Y';
+    document.querySelectorAll('.lx').forEach(el => el.textContent = ux);
+    document.querySelectorAll('.ly').forEach(el => el.textContent = uy);
+    $('bx2y').textContent = ux + ' → ' + uy;
+    $('by2x').textContent = uy + ' → ' + ux;
+    const kU = mmode === 'x2y' ? ux : uy, rU = mmode === 'x2y' ? uy : ux;
+    $('minLbl').textContent = t('known') + ' (' + kU + ')';
+    const x1 = num($('x1')), y1 = num($('y1')), x2 = num($('x2')), y2 = num($('y2')), k = num($('min')), out = $('mout');
+    if ([x1,y1,x2,y2].some(isNaN) || x1 === x2 || y1 === y2) { out.innerHTML = '<div class="empty">' + t('enterPts') + '</div>'; return; }
+    if (isNaN(k)) { out.innerHTML = '<div class="empty">' + t('enterVal') + '</div>'; return; }
+    const r = mmode === 'x2y' ? y1 + (k - x1) * (y2 - y1) / (x2 - x1) : x1 + (k - y1) * (x2 - x1) / (y2 - y1);
+    const sp = mmode === 'x2y' ? (k - x1) / (x2 - x1) * 100 : (k - y1) / (y2 - y1) * 100;
+    out.innerHTML = '<div class="results">' +
+      '<div class="row"><span>' + t('result') + '</span><b>' + fmt(r, 3) + ' ' + esc(rU) + '</b></div>' +
       '<div class="row"><span>' + t('span') + '</span><b>' + fmt(sp, 2) + '%</b></div></div>';
   }
   seg('.mmode', 'mm', v => { mmode = v; $('min').value = ''; calcMa(); });
-  ['mlo','mhi','min'].forEach(id => $(id).addEventListener('input', calcMa));
+  ['ux','uy','x1','y1','x2','y2','min'].forEach(id => $(id).addEventListener('input', calcMa));
 
   // ---- Idioma ----
   function setLang(l){
