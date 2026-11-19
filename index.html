@@ -27,7 +27,8 @@
   .seg { display:flex; gap:8px; margin:0 0 18px; }
   .seg button { flex:1; font-size:16px; font-weight:600; padding:10px 0; border-radius:10px; border:2px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
   .seg button.on { border-color:var(--accent); background:var(--accent); color:#fff; }
-  .tabs button { font-size:15px; }
+  .tabs { gap:6px; }
+  .tabs button { font-size:13px; padding:10px 2px; }
   .results { margin-top:20px; display:grid; gap:10px; }
   .row { display:flex; justify-content:space-between; align-items:baseline; padding:14px 16px; border-radius:10px; border:1px solid var(--line); }
   .row span { font-size:14px; color:var(--muted); }
@@ -79,6 +80,7 @@
     <button data-tab="tol" class="on" data-i18n="tabTol"></button>
     <button data-tab="cl" data-i18n="tabCl"></button>
     <button data-tab="flow" data-i18n="tabFlow"></button>
+    <button data-tab="ma" data-i18n="tabMa"></button>
     <button data-tab="calc" data-i18n="tabCalc"></button>
   </div>
 
@@ -125,27 +127,6 @@
       </div>
       <div style="margin-top:10px;text-align:center"><span class="badge" id="fbadge"></span></div>
     </div>
-    <div class="add" id="mabox">
-      <h3 data-i18n="maOut"></h3>
-      <label data-i18n="sigRep"></label>
-      <div class="seg mrep" style="margin-bottom:12px">
-        <button data-m="gpm" class="on">GPM</button>
-        <button data-m="mgd">MGD</button>
-        <button data-m="in" data-i18n="in"></button>
-        <button data-m="ft" data-i18n="ft"></button>
-      </div>
-      <div class="grid2">
-        <div><label for="m4" data-i18n="v4"></label><input id="m4" type="number" inputmode="decimal" step="any" value="0"></div>
-        <div><label for="m20" data-i18n="v20"></label><input id="m20" type="number" inputmode="decimal" step="any" data-i18n-ph="ex500"></div>
-      </div>
-      <div class="nums" style="grid-template-columns:1fr">
-        <div><span data-i18n="should"></span><b id="mexp" style="font-size:26px">—</b></div>
-      </div>
-      <div class="read hidden">
-        <input id="mread" type="number" inputmode="decimal" step="any" placeholder="mA medidos">
-        <div class="badge" id="mbadge" style="min-width:150px"></div>
-      </div>
-    </div>
     <p class="note" id="fnote"></p>
   </section>
 
@@ -156,6 +137,24 @@
     <button data-p="10">±10%</button>
   </div>
   </div>
+
+  <!-- Pestaña: 4-20 mA -->
+  <section id="tab-ma" class="hidden">
+    <div class="seg mmode">
+      <button data-mm="v2ma" class="on" data-i18n="v2ma"></button>
+      <button data-mm="ma2v" data-i18n="ma2v"></button>
+    </div>
+    <div class="grid2">
+      <div><label for="mlo" data-i18n="lrv"></label><input id="mlo" type="number" inputmode="decimal" step="any" value="0"></div>
+      <div><label for="mhi" data-i18n="urv"></label><input id="mhi" type="number" inputmode="decimal" step="any" data-i18n-ph="ex500"></div>
+    </div>
+    <div class="field">
+      <label for="min" id="minLbl"></label>
+      <input id="min" type="number" inputmode="decimal" step="any">
+    </div>
+    <div id="mout"></div>
+    <p class="note" data-i18n="maNote"></p>
+  </section>
 
   <!-- Pestaña: calculadora normal -->
   <section id="tab-calc" class="hidden">
@@ -215,8 +214,9 @@
   let pct = 5, vol = 10;
   const I18N = {
     en: {
-      title:'Tolerance Calculator', sub:'Secondaries, chlorine standard additions and open-channel flow.',
-      tabTol:'Tolerance', tabCl:'Chlorine', tabFlow:'Flow', tabCalc:'Calc',
+      title:'Tolerance Calculator', sub:'Secondaries, chlorine standard additions, open-channel flow and 4-20 mA.',
+      tabTol:'Tolerance', tabCl:'Chlorine', tabFlow:'Flow', tabMa:'mA', tabCalc:'Calc',
+      v2ma:'Value → mA', ma2v:'mA → Value', lrv:'Value at 4 mA (LRV)', urv:'Value at 20 mA (URV)', inVal:'Process value', inMa:'Current (mA)', outMa:'Current', outVal:'Value', span:'% of span', enterRange:'Enter the range (4 and 20 mA)…', enterVal:'Enter a value…', maNote:'mA = 4 + 16 × (value − LRV) ÷ (URV − LRV). Use the range configured in the transmitter (flow, level, pressure, etc.).',
       type:'Type', rect:'Rectang.', width:'Crest width (ft)', contr:'Contractions', none:'None', with2:'With 2',
       level:'Level', in:'in', ft:'ft', maOut:'4-20 mA output', sigRep:'Signal represents',
       v4:'Value at 4 mA', v20:'Value at 20 mA', should:'Should read',
@@ -235,8 +235,9 @@
       psz:{ '3':'3 in','6':'6 in','9':'9 in','12':'12 in (1 ft)','18':'18 in (1.5 ft)','24':'24 in (2 ft)' }
     },
     es: {
-      title:'Calculadora de tolerancia', sub:'Secundarios, adición estándar de cloro y flujo en canal abierto.',
-      tabTol:'Tolerancia', tabCl:'Cloro', tabFlow:'Flujo', tabCalc:'Calc',
+      title:'Calculadora de tolerancia', sub:'Secundarios, adición estándar de cloro, flujo en canal abierto y 4-20 mA.',
+      tabTol:'Tolerancia', tabCl:'Cloro', tabFlow:'Flujo', tabMa:'mA', tabCalc:'Calc',
+      v2ma:'Valor → mA', ma2v:'mA → Valor', lrv:'Valor a 4 mA (LRV)', urv:'Valor a 20 mA (URV)', inVal:'Valor del proceso', inMa:'Corriente (mA)', outMa:'Corriente', outVal:'Valor', span:'% del span', enterRange:'Escribe el rango (4 y 20 mA)…', enterVal:'Escribe un valor…', maNote:'mA = 4 + 16 × (valor − LRV) ÷ (URV − LRV). Usa el rango configurado en el transmisor (flujo, nivel, presión, etc.).',
       type:'Tipo', rect:'Rectang.', width:'Ancho de la cresta (pies)', contr:'Contracciones', none:'Sin', with2:'Con 2',
       level:'Nivel', in:'pulg', ft:'pies', maOut:'Salida 4-20 mA', sigRep:'La señal representa',
       v4:'Valor a 4 mA', v20:'Valor a 20 mA', should:'Debe dar',
@@ -351,7 +352,8 @@
     $('tab-cl').classList.toggle('hidden', t !== 'cl');
     $('tab-calc').classList.toggle('hidden', t !== 'calc');
     $('tab-flow').classList.toggle('hidden', t !== 'flow');
-    $('pctBox').classList.toggle('hidden', t === 'calc' || t === 'flow');
+    $('tab-ma').classList.toggle('hidden', t !== 'ma');
+    $('pctBox').classList.toggle('hidden', t === 'calc' || t === 'flow' || t === 'ma');
   });
 
   // ---- Flujo canal abierto (Q en pies³/s, H en pies) ----
@@ -410,7 +412,6 @@
     checkFlow();
   }
   function checkFlow(){
-    if (typeof calcMa === 'function') { const raw = num($('fh')); lastH = isNaN(raw) ? NaN : (funit === 'in' ? raw / 12 : raw); calcMa(); }
     const bd = $('fbadge'), r = num($('fread'));
     if (isNaN(r) || isNaN(lastQ)) { bd.textContent = ''; bd.className = 'badge'; return; }
     const exp = fru === 'gpm' ? lastQ * CFS_GPM : lastQ * CFS_MGD;
@@ -419,27 +420,6 @@
     bd.textContent = (ok ? t('pass') : t('fail')) + ' · ' + (err >= 0 ? '+' : '') + fmt(err, 2) + '%';
     bd.className = 'badge ' + (ok ? 'pass' : 'fail');
   }
-  let mrep = 'gpm', lastH = NaN;
-  function calcMa(){
-    const ex = $('mexp'), bd = $('mbadge');
-    const lo = num($('m4')), hi = num($('m20'));
-    let v = NaN;
-    if (mrep === 'gpm') v = lastQ * CFS_GPM;
-    else if (mrep === 'mgd') v = lastQ * CFS_MGD;
-    else if (mrep === 'in') v = lastH * 12;
-    else v = lastH;
-    if (isNaN(v) || isNaN(lo) || isNaN(hi) || hi === lo) { ex.textContent = '—'; bd.textContent = ''; bd.className = 'badge'; return; }
-    const ma = 4 + 16 * (v - lo) / (hi - lo);
-    ex.textContent = fmt(ma, 3) + ' mA';
-    const r = num($('mread'));
-    if (isNaN(r)) { bd.textContent = ''; bd.className = 'badge'; return; }
-    const errSpan = (r - ma) / 16 * 100;
-    const ok = Math.abs(errSpan) <= pct + 1e-9;
-    bd.textContent = (ok ? t('pass') : t('fail')) + ' · ' + (errSpan >= 0 ? '+' : '') + fmt(errSpan, 2) + '% span';
-    bd.className = 'badge ' + (ok ? 'pass' : 'fail');
-  }
-  seg('.mrep', 'm', v => { mrep = v; calcMa(); });
-  ['m4','m20','mread'].forEach(id => $(id).addEventListener('input', calcMa));
   seg('.ftype', 'ft', v => { ftype = v; fillSizes(); calcFlow(); });
   seg('.funit', 'u', v => { funit = v; calcFlow(); });
   seg('.fcon', 'c', v => { fcon = Number(v); calcFlow(); });
@@ -448,6 +428,27 @@
   ['fh','fwidth'].forEach(id => $(id).addEventListener('input', calcFlow));
   $('fread').addEventListener('input', checkFlow);
   fillSizes(); calcFlow();
+
+  // ---- 4-20 mA ----
+  let mmode = 'v2ma';
+  function calcMa(){
+    $('minLbl').textContent = mmode === 'v2ma' ? t('inVal') : t('inMa');
+    $('min').placeholder = mmode === 'v2ma' ? t('ex500') : (lang === 'es' ? 'Ej. 12' : 'e.g. 12');
+    const lo = num($('mlo')), hi = num($('mhi')), x = num($('min')), out = $('mout');
+    if (isNaN(lo) || isNaN(hi) || hi === lo) { out.innerHTML = '<div class="empty">' + t('enterRange') + '</div>'; return; }
+    if (isNaN(x)) { out.innerHTML = '<div class="empty">' + t('enterVal') + '</div>'; return; }
+    let ma, v;
+    if (mmode === 'v2ma') { v = x; ma = 4 + 16 * (v - lo) / (hi - lo); }
+    else { ma = x; v = lo + (ma - 4) / 16 * (hi - lo); }
+    const sp = (ma - 4) / 16 * 100;
+    const big = mmode === 'v2ma'
+      ? '<div class="row"><span>' + t('outMa') + '</span><b>' + fmt(ma, 3) + ' mA</b></div>'
+      : '<div class="row"><span>' + t('outVal') + '</span><b>' + fmt(v, 3) + '</b></div>';
+    out.innerHTML = '<div class="results">' + big +
+      '<div class="row"><span>' + t('span') + '</span><b>' + fmt(sp, 2) + '%</b></div></div>';
+  }
+  seg('.mmode', 'mm', v => { mmode = v; $('min').value = ''; calcMa(); });
+  ['mlo','mhi','min'].forEach(id => $(id).addEventListener('input', calcMa));
 
   // ---- Idioma ----
   function setLang(l){
@@ -458,7 +459,7 @@
     if ([...$('fsize').options].some(o => o.value === keep)) $('fsize').value = keep;
     const reads = ADDS.map((_, i) => $('rd' + i) ? $('rd' + i).value : '');
     buildAdds(); reads.forEach((r, i) => { if ($('rd' + i)) $('rd' + i).value = r; });
-    calc(); calcCl(); calcFlow();
+    calc(); calcCl(); calcFlow(); calcMa();
   }
   document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
@@ -543,7 +544,7 @@
   $('v').addEventListener('input', calc);
   $('cs').addEventListener('input', calcCl);
   $('c0').addEventListener('input', calcCl);
-  applyStatic(); fillSizes(); calc(); calcFlow();
+  applyStatic(); fillSizes(); calc(); calcFlow(); calcMa();
   buildAdds();
   calcCl();
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
