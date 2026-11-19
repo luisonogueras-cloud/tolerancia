@@ -50,6 +50,8 @@
   .fail { background:rgba(192,57,43,.15); color:var(--lo); }
   .note { font-size:12px; color:var(--muted); margin-top:14px; line-height:1.4; }
   .hidden { display:none; }
+  .sel { width:100%; font-size:20px; padding:10px 12px; border:2px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); }
+  #fcheck .badge { display:inline-block; }
   .cscreen { background:#bfe3a3; border-radius:12px; padding:14px 16px; text-align:right; margin-bottom:14px; min-height:96px; }
   .cexpr { color:#3f6b2e; font-size:16px; min-height:20px; word-break:break-all; }
   .cres { color:#2a4a1e; font-size:38px; font-weight:700; font-variant-numeric:tabular-nums; word-break:break-all; }
@@ -68,9 +70,77 @@
 
   <div class="seg tabs">
     <button data-tab="tol" class="on">Tolerancia</button>
-    <button data-tab="cl">Ampolleta</button>
-    <button data-tab="calc">Calculadora</button>
+    <button data-tab="cl">Cloro</button>
+    <button data-tab="flow">Flujo</button>
+    <button data-tab="calc">Calc</button>
   </div>
+
+  <!-- Pestaña: flujo canal abierto -->
+  <section id="tab-flow" class="hidden">
+    <label>Tipo</label>
+    <div class="seg ftype">
+      <button data-ft="parshall" class="on">Parshall</button>
+      <button data-ft="v">V-notch</button>
+      <button data-ft="rect">Rectang.</button>
+    </div>
+    <div id="fsizeBox" class="field">
+      <label for="fsize" id="fsizeLbl">Garganta</label>
+      <select id="fsize" class="sel"></select>
+    </div>
+    <div id="frectBox" class="hidden">
+      <div class="field">
+        <label for="fwidth">Ancho de la cresta (pies)</label>
+        <input id="fwidth" type="number" inputmode="decimal" step="any" placeholder="Ej. 2">
+      </div>
+      <label>Contracciones</label>
+      <div class="seg fcon">
+        <button data-c="0" class="on">Sin</button>
+        <button data-c="1">Con 2</button>
+      </div>
+    </div>
+    <label for="fh">Nivel</label>
+    <div class="read" style="margin-bottom:6px">
+      <input id="fh" type="number" inputmode="decimal" step="any" placeholder="Ej. 6">
+      <div class="seg funit" style="margin:0;flex:0 0 150px">
+        <button data-u="in" class="on">pulg</button>
+        <button data-u="ft">pies</button>
+      </div>
+    </div>
+    <div id="fout"><div class="empty">Escribe el nivel…</div></div>
+    <div class="add hidden" id="fcheck">
+      <h3>Lectura del medidor</h3>
+      <div class="read">
+        <input id="fread" type="number" inputmode="decimal" step="any" placeholder="Flujo">
+        <div class="seg fru" style="margin:0;flex:0 0 150px">
+          <button data-r="gpm" class="on">GPM</button>
+          <button data-r="mgd">MGD</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;text-align:center"><span class="badge" id="fbadge"></span></div>
+    </div>
+    <div class="add" id="mabox">
+      <h3>Salida 4-20 mA</h3>
+      <label>La señal representa</label>
+      <div class="seg mrep" style="margin-bottom:12px">
+        <button data-m="gpm" class="on">GPM</button>
+        <button data-m="mgd">MGD</button>
+        <button data-m="in">pulg</button>
+        <button data-m="ft">pies</button>
+      </div>
+      <div class="grid2">
+        <div><label for="m4">Valor a 4 mA</label><input id="m4" type="number" inputmode="decimal" step="any" value="0"></div>
+        <div><label for="m20">Valor a 20 mA</label><input id="m20" type="number" inputmode="decimal" step="any" placeholder="Ej. 500"></div>
+      </div>
+      <div class="nums" style="grid-template-columns:1fr">
+        <div><span>Debe dar</span><b id="mexp" style="font-size:26px">—</b></div>
+      </div>
+      <div class="read hidden">
+        <input id="mread" type="number" inputmode="decimal" step="any" placeholder="mA medidos">
+        <div class="badge" id="mbadge" style="min-width:150px"></div>
+      </div>
+    </div>
+    <p class="note" id="fnote"></p>
+  </section>
 
   <div id="pctBox">
   <label>Tolerancia</label>
@@ -138,7 +208,7 @@
   let pct = 5, vol = 10;
   const $ = id => document.getElementById(id);
   function decs(s){ const i = s.indexOf('.'); return i < 0 ? 0 : s.length - i - 1; }
-  function fmt(n, d){ return n.toLocaleString('es', { minimumFractionDigits:d, maximumFractionDigits:d }); }
+  function fmt(n, d){ return n.toLocaleString('en-US', { minimumFractionDigits:d, maximumFractionDigits:d }); }
   function num(el){ const s = el.value.trim(); return s === '' ? NaN : Number(s); }
 
   // ---- Tolerancia simple ----
@@ -215,14 +285,110 @@
       cb(b.dataset[attr]);
     }));
   }
-  seg('.pct', 'p', v => { pct = Number(v); calc(); calcCl(); });
+  seg('.pct', 'p', v => { pct = Number(v); calc(); calcCl(); if (typeof checkFlow === 'function') checkFlow(); });
   seg('.vol', 'vol', v => { vol = Number(v); calcCl(); });
   seg('.tabs', 'tab', t => {
     $('tab-tol').classList.toggle('hidden', t !== 'tol');
     $('tab-cl').classList.toggle('hidden', t !== 'cl');
     $('tab-calc').classList.toggle('hidden', t !== 'calc');
-    $('pctBox').classList.toggle('hidden', t === 'calc');
+    $('tab-flow').classList.toggle('hidden', t !== 'flow');
+    $('pctBox').classList.toggle('hidden', t === 'calc' || t === 'flow');
   });
+
+  // ---- Flujo canal abierto (Q en pies³/s, H en pies) ----
+  const CFS_GPM = 448.831, CFS_MGD = 0.646317;
+  const PARSHALL = { // flujo libre: Q = C · H^n
+    '3':  { name:'3 pulg',          C:0.992, n:1.547 },
+    '6':  { name:'6 pulg',          C:2.06,  n:1.58  },
+    '9':  { name:'9 pulg',          C:3.07,  n:1.53  },
+    '12': { name:'12 pulg (1 pie)',  C:4.00,  n:1.522 },
+    '18': { name:'18 pulg (1.5 pies)', C:6.00, n:1.538 },
+    '24': { name:'24 pulg (2 pies)', C:8.00,  n:1.550 }
+  };
+  const VNOTCH = { // Q = C · H^2.5
+    '22.5': 0.497, '30': 0.676, '45': 1.035, '60': 1.443, '90': 2.500
+  };
+  let ftype = 'parshall', funit = 'in', fcon = 0, fru = 'gpm', lastQ = NaN;
+  function fillSizes(){
+    const sel = $('fsize');
+    if (ftype === 'parshall') {
+      $('fsizeLbl').textContent = 'Garganta';
+      sel.innerHTML = Object.entries(PARSHALL).map(([k,v]) => '<option value="'+k+'">'+v.name+'</option>').join('');
+    } else if (ftype === 'v') {
+      $('fsizeLbl').textContent = 'Ángulo';
+      sel.innerHTML = Object.keys(VNOTCH).map(k => '<option value="'+k+'"'+(k==='90'?' selected':'')+'>'+k+'°</option>').join('');
+    }
+    $('fsizeBox').classList.toggle('hidden', ftype === 'rect');
+    $('frectBox').classList.toggle('hidden', ftype !== 'rect');
+  }
+  function fnote(){
+    let t;
+    if (ftype === 'parshall') { const p = PARSHALL[$('fsize').value]; t = 'Parshall ' + p.name + ', flujo libre: Q (pies³/s) = ' + p.C + ' × H^' + p.n + ', H en pies.'; }
+    else if (ftype === 'v') { t = 'V-notch de ' + $('fsize').value + '°: Q (pies³/s) = ' + VNOTCH[$('fsize').value] + ' × H^2.5, H en pies.'; }
+    else { t = fcon ? 'Rectangular con 2 contracciones (Francis): Q = 3.33 × (L − 0.2H) × H^1.5' : 'Rectangular sin contracciones (Francis): Q = 3.33 × L × H^1.5'; t += ', L y H en pies.'; }
+    $('fnote').textContent = t + ' 1 pie³/s = 448.83 GPM = 0.6463 MGD.';
+  }
+  function calcFlow(){
+    fnote();
+    const raw = num($('fh'));
+    if (isNaN(raw) || raw < 0) { $('fout').innerHTML = '<div class="empty">Escribe el nivel…</div>'; lastQ = NaN; checkFlow(); return; }
+    const H = funit === 'in' ? raw / 12 : raw;
+    let Q;
+    if (ftype === 'parshall') { const p = PARSHALL[$('fsize').value]; Q = p.C * Math.pow(H, p.n); }
+    else if (ftype === 'v') { Q = VNOTCH[$('fsize').value] * Math.pow(H, 2.5); }
+    else {
+      const L = num($('fwidth'));
+      if (isNaN(L) || L <= 0) { $('fout').innerHTML = '<div class="empty">Escribe el ancho de la cresta…</div>'; lastQ = NaN; checkFlow(); return; }
+      Q = 3.33 * (fcon ? Math.max(L - 0.2 * H, 0) : L) * Math.pow(H, 1.5);
+    }
+    lastQ = Q;
+    $('fout').innerHTML =
+      '<div class="results">' +
+        '<div class="row"><span>GPM</span><b>' + fmt(Q * CFS_GPM, 2) + '</b></div>' +
+        '<div class="row"><span>MGD</span><b>' + fmt(Q * CFS_MGD, 4) + '</b></div>' +
+      '</div>' +
+      '<div class="delta">' + fmt(Q, 4) + ' pies³/s · nivel ' + fmt(H, 4) + ' pies (' + fmt(H * 12, 3) + ' pulg)</div>';
+    checkFlow();
+  }
+  function checkFlow(){
+    if (typeof calcMa === 'function') { const raw = num($('fh')); lastH = isNaN(raw) ? NaN : (funit === 'in' ? raw / 12 : raw); calcMa(); }
+    const bd = $('fbadge'), r = num($('fread'));
+    if (isNaN(r) || isNaN(lastQ)) { bd.textContent = ''; bd.className = 'badge'; return; }
+    const exp = fru === 'gpm' ? lastQ * CFS_GPM : lastQ * CFS_MGD;
+    const err = exp === 0 ? 0 : (r - exp) / exp * 100;
+    const ok = Math.abs(err) <= pct + 1e-9;
+    bd.textContent = (ok ? 'PASA' : 'FALLA') + ' · ' + (err >= 0 ? '+' : '') + fmt(err, 2) + '%';
+    bd.className = 'badge ' + (ok ? 'pass' : 'fail');
+  }
+  let mrep = 'gpm', lastH = NaN;
+  function calcMa(){
+    const ex = $('mexp'), bd = $('mbadge');
+    const lo = num($('m4')), hi = num($('m20'));
+    let v = NaN;
+    if (mrep === 'gpm') v = lastQ * CFS_GPM;
+    else if (mrep === 'mgd') v = lastQ * CFS_MGD;
+    else if (mrep === 'in') v = lastH * 12;
+    else v = lastH;
+    if (isNaN(v) || isNaN(lo) || isNaN(hi) || hi === lo) { ex.textContent = '—'; bd.textContent = ''; bd.className = 'badge'; return; }
+    const ma = 4 + 16 * (v - lo) / (hi - lo);
+    ex.textContent = fmt(ma, 3) + ' mA';
+    const r = num($('mread'));
+    if (isNaN(r)) { bd.textContent = ''; bd.className = 'badge'; return; }
+    const errSpan = (r - ma) / 16 * 100;
+    const ok = Math.abs(errSpan) <= pct + 1e-9;
+    bd.textContent = (ok ? 'PASA' : 'FALLA') + ' · ' + (errSpan >= 0 ? '+' : '') + fmt(errSpan, 2) + '% span';
+    bd.className = 'badge ' + (ok ? 'pass' : 'fail');
+  }
+  seg('.mrep', 'm', v => { mrep = v; calcMa(); });
+  ['m4','m20','mread'].forEach(id => $(id).addEventListener('input', calcMa));
+  seg('.ftype', 'ft', v => { ftype = v; fillSizes(); calcFlow(); });
+  seg('.funit', 'u', v => { funit = v; calcFlow(); });
+  seg('.fcon', 'c', v => { fcon = Number(v); calcFlow(); });
+  seg('.fru', 'r', v => { fru = v; checkFlow(); });
+  $('fsize').addEventListener('change', calcFlow);
+  ['fh','fwidth'].forEach(id => $(id).addEventListener('input', calcFlow));
+  $('fread').addEventListener('input', checkFlow);
+  fillSizes(); calcFlow();
 
   // ---- Calculadora normal ----
   let expr = '', justDone = false;
