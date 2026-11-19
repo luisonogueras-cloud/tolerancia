@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Calculadora de tolerancia</title>
+<title>Tolerance Calculator</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1f6feb">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Tolerancia">
+<meta name="apple-mobile-web-app-title" content="Tolerance">
 <style>
   :root { --bg:#f4f6f8; --card:#fff; --ink:#1b2430; --muted:#6b7684; --accent:#1f6feb; --lo:#c0392b; --hi:#1e8449; --line:#e3e7ec; --soft:#f7f9fb; }
   @media (prefers-color-scheme: dark) {
@@ -52,6 +52,10 @@
   .hidden { display:none; }
   .sel { width:100%; font-size:20px; padding:10px 12px; border:2px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); }
   #fcheck .badge { display:inline-block; }
+  .hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .lang { display:flex; border:2px solid var(--line); border-radius:8px; overflow:hidden; flex:0 0 auto; }
+  .lang button { border:none; background:transparent; color:var(--muted); font-weight:700; font-size:13px; padding:6px 10px; cursor:pointer; }
+  .lang button.on { background:var(--accent); color:#fff; }
   .cscreen { background:#bfe3a3; border-radius:12px; padding:14px 16px; text-align:right; margin-bottom:14px; min-height:96px; }
   .cexpr { color:#3f6b2e; font-size:16px; min-height:20px; word-break:break-all; }
   .cres { color:#2a4a1e; font-size:38px; font-weight:700; font-variant-numeric:tabular-nums; word-break:break-all; }
@@ -65,23 +69,26 @@
 </head>
 <body>
 <div class="card">
-  <h1>Calculadora de tolerancia</h1>
-  <p class="sub">Secundarios y adición estándar de cloro.</p>
+  <div class="hdr">
+    <h1 data-i18n="title"></h1>
+    <div class="lang"><button data-lang="en">EN</button><button data-lang="es">ES</button></div>
+  </div>
+  <p class="sub" data-i18n="sub"></p>
 
   <div class="seg tabs">
-    <button data-tab="tol" class="on">Tolerancia</button>
-    <button data-tab="cl">Cloro</button>
-    <button data-tab="flow">Flujo</button>
-    <button data-tab="calc">Calc</button>
+    <button data-tab="tol" class="on" data-i18n="tabTol"></button>
+    <button data-tab="cl" data-i18n="tabCl"></button>
+    <button data-tab="flow" data-i18n="tabFlow"></button>
+    <button data-tab="calc" data-i18n="tabCalc"></button>
   </div>
 
   <!-- Pestaña: flujo canal abierto -->
   <section id="tab-flow" class="hidden">
-    <label>Tipo</label>
+    <label data-i18n="type"></label>
     <div class="seg ftype">
       <button data-ft="parshall" class="on">Parshall</button>
       <button data-ft="v">V-notch</button>
-      <button data-ft="rect">Rectang.</button>
+      <button data-ft="rect" data-i18n="rect"></button>
     </div>
     <div id="fsizeBox" class="field">
       <label for="fsize" id="fsizeLbl">Garganta</label>
@@ -89,24 +96,24 @@
     </div>
     <div id="frectBox" class="hidden">
       <div class="field">
-        <label for="fwidth">Ancho de la cresta (pies)</label>
-        <input id="fwidth" type="number" inputmode="decimal" step="any" placeholder="Ej. 2">
+        <label for="fwidth" data-i18n="width"></label>
+        <input id="fwidth" type="number" inputmode="decimal" step="any" data-i18n-ph="ex2">
       </div>
-      <label>Contracciones</label>
+      <label data-i18n="contr"></label>
       <div class="seg fcon">
-        <button data-c="0" class="on">Sin</button>
-        <button data-c="1">Con 2</button>
+        <button data-c="0" class="on" data-i18n="none"></button>
+        <button data-c="1" data-i18n="with2"></button>
       </div>
     </div>
-    <label for="fh">Nivel</label>
+    <label for="fh" data-i18n="level"></label>
     <div class="read" style="margin-bottom:6px">
-      <input id="fh" type="number" inputmode="decimal" step="any" placeholder="Ej. 6">
+      <input id="fh" type="number" inputmode="decimal" step="any" data-i18n-ph="ex6">
       <div class="seg funit" style="margin:0;flex:0 0 150px">
-        <button data-u="in" class="on">pulg</button>
-        <button data-u="ft">pies</button>
+        <button data-u="in" class="on" data-i18n="in"></button>
+        <button data-u="ft" data-i18n="ft"></button>
       </div>
     </div>
-    <div id="fout"><div class="empty">Escribe el nivel…</div></div>
+    <div id="fout"></div>
     <div class="add hidden" id="fcheck">
       <h3>Lectura del medidor</h3>
       <div class="read">
@@ -119,20 +126,20 @@
       <div style="margin-top:10px;text-align:center"><span class="badge" id="fbadge"></span></div>
     </div>
     <div class="add" id="mabox">
-      <h3>Salida 4-20 mA</h3>
-      <label>La señal representa</label>
+      <h3 data-i18n="maOut"></h3>
+      <label data-i18n="sigRep"></label>
       <div class="seg mrep" style="margin-bottom:12px">
         <button data-m="gpm" class="on">GPM</button>
         <button data-m="mgd">MGD</button>
-        <button data-m="in">pulg</button>
-        <button data-m="ft">pies</button>
+        <button data-m="in" data-i18n="in"></button>
+        <button data-m="ft" data-i18n="ft"></button>
       </div>
       <div class="grid2">
-        <div><label for="m4">Valor a 4 mA</label><input id="m4" type="number" inputmode="decimal" step="any" value="0"></div>
-        <div><label for="m20">Valor a 20 mA</label><input id="m20" type="number" inputmode="decimal" step="any" placeholder="Ej. 500"></div>
+        <div><label for="m4" data-i18n="v4"></label><input id="m4" type="number" inputmode="decimal" step="any" value="0"></div>
+        <div><label for="m20" data-i18n="v20"></label><input id="m20" type="number" inputmode="decimal" step="any" data-i18n-ph="ex500"></div>
       </div>
       <div class="nums" style="grid-template-columns:1fr">
-        <div><span>Debe dar</span><b id="mexp" style="font-size:26px">—</b></div>
+        <div><span data-i18n="should"></span><b id="mexp" style="font-size:26px">—</b></div>
       </div>
       <div class="read hidden">
         <input id="mread" type="number" inputmode="decimal" step="any" placeholder="mA medidos">
@@ -143,7 +150,7 @@
   </section>
 
   <div id="pctBox">
-  <label>Tolerancia</label>
+  <label data-i18n="tol"></label>
   <div class="seg pct">
     <button data-p="5" class="on">±5%</button>
     <button data-p="10">±10%</button>
@@ -182,30 +189,82 @@
 
   <!-- Pestaña: tolerancia simple -->
   <section id="tab-tol">
-    <label for="v">Valor</label>
-    <input id="v" type="number" inputmode="decimal" step="any" placeholder="Ej. 19.3">
-    <div id="out"><div class="empty">Esperando un valor…</div></div>
+    <label for="v" data-i18n="value"></label>
+    <input id="v" type="number" inputmode="decimal" step="any" data-i18n-ph="ex19">
+    <div id="out"></div>
   </section>
 
   <!-- Pestaña: ampolleta de cloro -->
   <section id="tab-cl" class="hidden">
     <div class="field">
-      <label for="cs">Ampolleta (mg/L)</label>
+      <label for="cs" data-i18n="amp"></label>
       <input id="cs" type="number" inputmode="decimal" step="any" value="59.8">
       <input id="c0" type="hidden" value="">
     </div>
-    <label>Volumen de muestra</label>
+    <label data-i18n="vol"></label>
     <div class="seg vol">
       <button data-vol="10" class="on">10 mL</button>
       <button data-vol="2">2 mL</button>
     </div>
     <div id="adds"></div>
-    <p class="note">Esperado = mL añadidos ÷ (V + mL añadidos) × ampolleta. Escribe lo que lee el equipo en cada adición para ver si pasa.</p>
+    <p class="note" data-i18n="clNote"></p>
   </section>
 </div>
 
 <script>
   let pct = 5, vol = 10;
+  const I18N = {
+    en: {
+      title:'Tolerance Calculator', sub:'Secondaries, chlorine standard additions and open-channel flow.',
+      tabTol:'Tolerance', tabCl:'Chlorine', tabFlow:'Flow', tabCalc:'Calc',
+      type:'Type', rect:'Rectang.', width:'Crest width (ft)', contr:'Contractions', none:'None', with2:'With 2',
+      level:'Level', in:'in', ft:'ft', maOut:'4-20 mA output', sigRep:'Signal represents',
+      v4:'Value at 4 mA', v20:'Value at 20 mA', should:'Should read',
+      tol:'Tolerance', value:'Value', amp:'Ampule (mg/L)', vol:'Sample volume',
+      clNote:'Expected = mL added ÷ (V + mL added) × ampule. Enter the instrument reading for each addition to see if it passes.',
+      ex2:'e.g. 2', ex6:'e.g. 6', ex500:'e.g. 500', ex19:'e.g. 19.3',
+      waiting:'Waiting for a value…', min:'Minimum', max:'Maximum', margin:'Margin',
+      addition:'Addition', remove:'Remove', expected:'Expected (mg/L)', reading:'Instrument reading', addAdd:'+ Add addition',
+      pass:'PASS', fail:'FAIL', throat:'Throat', angle:'Angle', enterLevel:'Enter the level…', enterWidth:'Enter the crest width…',
+      levelW:'level', ft3:'ft³/s',
+      nParshall:(n,C,e)=>'Parshall '+n+', free flow: Q (ft³/s) = '+C+' × H^'+e+', H in ft.',
+      nV:(a,C)=>'V-notch '+a+'°: Q (ft³/s) = '+C+' × H^2.5, H in ft.',
+      nRect2:'Rectangular with 2 contractions (Francis): Q = 3.33 × (L − 0.2H) × H^1.5, L and H in ft.',
+      nRect0:'Rectangular without contractions (Francis): Q = 3.33 × L × H^1.5, L and H in ft.',
+      nConv:' 1 ft³/s = 448.83 GPM = 0.6463 MGD.',
+      psz:{ '3':'3 in','6':'6 in','9':'9 in','12':'12 in (1 ft)','18':'18 in (1.5 ft)','24':'24 in (2 ft)' }
+    },
+    es: {
+      title:'Calculadora de tolerancia', sub:'Secundarios, adición estándar de cloro y flujo en canal abierto.',
+      tabTol:'Tolerancia', tabCl:'Cloro', tabFlow:'Flujo', tabCalc:'Calc',
+      type:'Tipo', rect:'Rectang.', width:'Ancho de la cresta (pies)', contr:'Contracciones', none:'Sin', with2:'Con 2',
+      level:'Nivel', in:'pulg', ft:'pies', maOut:'Salida 4-20 mA', sigRep:'La señal representa',
+      v4:'Valor a 4 mA', v20:'Valor a 20 mA', should:'Debe dar',
+      tol:'Tolerancia', value:'Valor', amp:'Ampolleta (mg/L)', vol:'Volumen de muestra',
+      clNote:'Esperado = mL añadidos ÷ (V + mL añadidos) × ampolleta. Escribe lo que lee el equipo en cada adición para ver si pasa.',
+      ex2:'Ej. 2', ex6:'Ej. 6', ex500:'Ej. 500', ex19:'Ej. 19.3',
+      waiting:'Esperando un valor…', min:'Mínimo', max:'Máximo', margin:'Margen',
+      addition:'Adición', remove:'Quitar', expected:'Esperado (mg/L)', reading:'Lectura del equipo', addAdd:'+ Añadir adición',
+      pass:'PASA', fail:'FALLA', throat:'Garganta', angle:'Ángulo', enterLevel:'Escribe el nivel…', enterWidth:'Escribe el ancho de la cresta…',
+      levelW:'nivel', ft3:'pies³/s',
+      nParshall:(n,C,e)=>'Parshall '+n+', flujo libre: Q (pies³/s) = '+C+' × H^'+e+', H en pies.',
+      nV:(a,C)=>'V-notch de '+a+'°: Q (pies³/s) = '+C+' × H^2.5, H en pies.',
+      nRect2:'Rectangular con 2 contracciones (Francis): Q = 3.33 × (L − 0.2H) × H^1.5, L y H en pies.',
+      nRect0:'Rectangular sin contracciones (Francis): Q = 3.33 × L × H^1.5, L y H en pies.',
+      nConv:' 1 pie³/s = 448.83 GPM = 0.6463 MGD.',
+      psz:{ '3':'3 pulg','6':'6 pulg','9':'9 pulg','12':'12 pulg (1 pie)','18':'18 pulg (1.5 pies)','24':'24 pulg (2 pies)' }
+    }
+  };
+  let lang = 'en';
+  try { const sv = localStorage.getItem('lang'); if (sv === 'es' || sv === 'en') lang = sv; } catch(e) {}
+  const t = k => I18N[lang][k];
+  function applyStatic(){
+    document.documentElement.lang = lang;
+    document.title = t('title');
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+    document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+  }
   const $ = id => document.getElementById(id);
   function decs(s){ const i = s.indexOf('.'); return i < 0 ? 0 : s.length - i - 1; }
   function fmt(n, d){ return n.toLocaleString('en-US', { minimumFractionDigits:d, maximumFractionDigits:d }); }
@@ -214,17 +273,17 @@
   // ---- Tolerancia simple ----
   function calc(){
     const raw = $('v').value.trim();
-    if (raw === '' || isNaN(Number(raw))) { $('out').innerHTML = '<div class="empty">Esperando un valor…</div>'; return; }
+    if (raw === '' || isNaN(Number(raw))) { $('out').innerHTML = '<div class="empty">' + t('waiting') + '</div>'; return; }
     const v = Number(raw);
     const d = Math.min(Math.max(decs(raw) + 2, 2), 6);
     const delta = Math.abs(v) * pct / 100;
     $('out').innerHTML =
       '<div class="results">' +
-        '<div class="row lo"><span>Mínimo (−' + pct + '%)</span><b>' + fmt(v - delta, d) + '</b></div>' +
-        '<div class="row"><span>Valor</span><b>' + fmt(v, d) + '</b></div>' +
-        '<div class="row hi"><span>Máximo (+' + pct + '%)</span><b>' + fmt(v + delta, d) + '</b></div>' +
+        '<div class="row lo"><span>' + t('min') + ' (−' + pct + '%)</span><b>' + fmt(v - delta, d) + '</b></div>' +
+        '<div class="row"><span>' + t('value') + '</span><b>' + fmt(v, d) + '</b></div>' +
+        '<div class="row hi"><span>' + t('max') + ' (+' + pct + '%)</span><b>' + fmt(v + delta, d) + '</b></div>' +
       '</div>' +
-      '<div class="delta">Margen: ±' + fmt(delta, d) + '</div>';
+      '<div class="delta">' + t('margin') + ': ±' + fmt(delta, d) + '</div>';
   }
 
   // ---- Ampolleta de cloro ----
@@ -232,21 +291,21 @@
   function buildAdds(){
     $('adds').innerHTML = ADDS.map((a, i) =>
       '<div class="add">' +
-        '<h3>Adición ' + (i+1) +
+        '<h3>' + t('addition') + ' ' + (i+1) +
           ' <span style="display:flex;gap:6px;align-items:center"><small>mL</small>' +
           '<input class="ml" data-i="' + i + '" type="number" inputmode="decimal" step="any" value="' + a + '" style="width:80px;font-size:15px;padding:4px 8px">' +
-          '<button class="rm" data-i="' + i + '" title="Quitar" style="border:none;background:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button></span></h3>' +
+          '<button class="rm" data-i="' + i + '" title="' + t('remove') + '" style="border:none;background:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button></span></h3>' +
         '<div class="nums" style="grid-template-columns:1fr">' +
           '<span class="hidden" id="mn' + i + '"></span><span class="hidden" id="mx' + i + '"></span>' +
-          '<div><span>Esperado (mg/L)</span><b id="ex' + i + '" style="font-size:26px">—</b></div>' +
+          '<div><span>' + t('expected') + '</span><b id="ex' + i + '" style="font-size:26px">—</b></div>' +
         '</div>' +
         '<div class="read">' +
-          '<input id="rd' + i + '" type="number" inputmode="decimal" step="any" placeholder="Lectura del equipo">' +
+          '<input id="rd' + i + '" type="number" inputmode="decimal" step="any" placeholder="' + t('reading') + '">' +
           '<div class="badge" id="bd' + i + '"></div>' +
         '</div>' +
       '</div>'
     ).join('') +
-    '<button id="addBtn" style="width:100%;margin-top:12px;padding:12px;font-size:16px;font-weight:600;border-radius:10px;border:2px dashed var(--line);background:transparent;color:var(--accent);cursor:pointer">+ Añadir adición</button>';
+    '<button id="addBtn" style="width:100%;margin-top:12px;padding:12px;font-size:16px;font-weight:600;border-radius:10px;border:2px dashed var(--line);background:transparent;color:var(--accent);cursor:pointer">' + t('addAdd') + '</button>';
     ADDS.forEach((_, i) => $('rd' + i).addEventListener('input', calcCl));
     document.querySelectorAll('.ml').forEach(el => el.addEventListener('input', () => {
       const v = Number(el.value); ADDS[el.dataset.i] = isNaN(v) ? 0 : v; calcCl();
@@ -273,8 +332,8 @@
       mn.style.color = 'var(--lo)'; mx.style.color = 'var(--hi)';
       const r = num($('rd' + i));
       if (isNaN(r)) { bd.textContent = ''; bd.className = 'badge'; }
-      else if (r >= Math.round(lo*100)/100 && r <= Math.round(hi*100)/100) { bd.textContent = 'PASA'; bd.className = 'badge pass'; }
-      else { bd.textContent = 'FALLA'; bd.className = 'badge fail'; }
+      else if (r >= Math.round(lo*100)/100 && r <= Math.round(hi*100)/100) { bd.textContent = t('pass'); bd.className = 'badge pass'; }
+      else { bd.textContent = t('fail'); bd.className = 'badge fail'; }
     });
   }
 
@@ -312,33 +371,33 @@
   function fillSizes(){
     const sel = $('fsize');
     if (ftype === 'parshall') {
-      $('fsizeLbl').textContent = 'Garganta';
-      sel.innerHTML = Object.entries(PARSHALL).map(([k,v]) => '<option value="'+k+'">'+v.name+'</option>').join('');
+      $('fsizeLbl').textContent = t('throat');
+      sel.innerHTML = Object.keys(PARSHALL).map(k => '<option value="'+k+'">'+t('psz')[k]+'</option>').join('');
     } else if (ftype === 'v') {
-      $('fsizeLbl').textContent = 'Ángulo';
+      $('fsizeLbl').textContent = t('angle');
       sel.innerHTML = Object.keys(VNOTCH).map(k => '<option value="'+k+'"'+(k==='90'?' selected':'')+'>'+k+'°</option>').join('');
     }
     $('fsizeBox').classList.toggle('hidden', ftype === 'rect');
     $('frectBox').classList.toggle('hidden', ftype !== 'rect');
   }
   function fnote(){
-    let t;
-    if (ftype === 'parshall') { const p = PARSHALL[$('fsize').value]; t = 'Parshall ' + p.name + ', flujo libre: Q (pies³/s) = ' + p.C + ' × H^' + p.n + ', H en pies.'; }
-    else if (ftype === 'v') { t = 'V-notch de ' + $('fsize').value + '°: Q (pies³/s) = ' + VNOTCH[$('fsize').value] + ' × H^2.5, H en pies.'; }
-    else { t = fcon ? 'Rectangular con 2 contracciones (Francis): Q = 3.33 × (L − 0.2H) × H^1.5' : 'Rectangular sin contracciones (Francis): Q = 3.33 × L × H^1.5'; t += ', L y H en pies.'; }
-    $('fnote').textContent = t + ' 1 pie³/s = 448.83 GPM = 0.6463 MGD.';
+    let x;
+    if (ftype === 'parshall') { const k = $('fsize').value, p = PARSHALL[k]; x = t('nParshall')(t('psz')[k], p.C, p.n); }
+    else if (ftype === 'v') { x = t('nV')($('fsize').value, VNOTCH[$('fsize').value]); }
+    else { x = fcon ? t('nRect2') : t('nRect0'); }
+    $('fnote').textContent = x + t('nConv');
   }
   function calcFlow(){
     fnote();
     const raw = num($('fh'));
-    if (isNaN(raw) || raw < 0) { $('fout').innerHTML = '<div class="empty">Escribe el nivel…</div>'; lastQ = NaN; checkFlow(); return; }
+    if (isNaN(raw) || raw < 0) { $('fout').innerHTML = '<div class="empty">' + t('enterLevel') + '</div>'; lastQ = NaN; checkFlow(); return; }
     const H = funit === 'in' ? raw / 12 : raw;
     let Q;
     if (ftype === 'parshall') { const p = PARSHALL[$('fsize').value]; Q = p.C * Math.pow(H, p.n); }
     else if (ftype === 'v') { Q = VNOTCH[$('fsize').value] * Math.pow(H, 2.5); }
     else {
       const L = num($('fwidth'));
-      if (isNaN(L) || L <= 0) { $('fout').innerHTML = '<div class="empty">Escribe el ancho de la cresta…</div>'; lastQ = NaN; checkFlow(); return; }
+      if (isNaN(L) || L <= 0) { $('fout').innerHTML = '<div class="empty">' + t('enterWidth') + '</div>'; lastQ = NaN; checkFlow(); return; }
       Q = 3.33 * (fcon ? Math.max(L - 0.2 * H, 0) : L) * Math.pow(H, 1.5);
     }
     lastQ = Q;
@@ -347,7 +406,7 @@
         '<div class="row"><span>GPM</span><b>' + fmt(Q * CFS_GPM, 2) + '</b></div>' +
         '<div class="row"><span>MGD</span><b>' + fmt(Q * CFS_MGD, 4) + '</b></div>' +
       '</div>' +
-      '<div class="delta">' + fmt(Q, 4) + ' pies³/s · nivel ' + fmt(H, 4) + ' pies (' + fmt(H * 12, 3) + ' pulg)</div>';
+      '<div class="delta">' + fmt(Q, 4) + ' ' + t('ft3') + ' · ' + t('levelW') + ' ' + fmt(H, 4) + ' ' + t('ft') + ' (' + fmt(H * 12, 3) + ' ' + t('in') + ')</div>';
     checkFlow();
   }
   function checkFlow(){
@@ -357,7 +416,7 @@
     const exp = fru === 'gpm' ? lastQ * CFS_GPM : lastQ * CFS_MGD;
     const err = exp === 0 ? 0 : (r - exp) / exp * 100;
     const ok = Math.abs(err) <= pct + 1e-9;
-    bd.textContent = (ok ? 'PASA' : 'FALLA') + ' · ' + (err >= 0 ? '+' : '') + fmt(err, 2) + '%';
+    bd.textContent = (ok ? t('pass') : t('fail')) + ' · ' + (err >= 0 ? '+' : '') + fmt(err, 2) + '%';
     bd.className = 'badge ' + (ok ? 'pass' : 'fail');
   }
   let mrep = 'gpm', lastH = NaN;
@@ -376,7 +435,7 @@
     if (isNaN(r)) { bd.textContent = ''; bd.className = 'badge'; return; }
     const errSpan = (r - ma) / 16 * 100;
     const ok = Math.abs(errSpan) <= pct + 1e-9;
-    bd.textContent = (ok ? 'PASA' : 'FALLA') + ' · ' + (errSpan >= 0 ? '+' : '') + fmt(errSpan, 2) + '% span';
+    bd.textContent = (ok ? t('pass') : t('fail')) + ' · ' + (errSpan >= 0 ? '+' : '') + fmt(errSpan, 2) + '% span';
     bd.className = 'badge ' + (ok ? 'pass' : 'fail');
   }
   seg('.mrep', 'm', v => { mrep = v; calcMa(); });
@@ -389,6 +448,19 @@
   ['fh','fwidth'].forEach(id => $(id).addEventListener('input', calcFlow));
   $('fread').addEventListener('input', checkFlow);
   fillSizes(); calcFlow();
+
+  // ---- Idioma ----
+  function setLang(l){
+    lang = l;
+    try { localStorage.setItem('lang', l); } catch(e) {}
+    const keep = $('fsize').value;
+    applyStatic(); fillSizes();
+    if ([...$('fsize').options].some(o => o.value === keep)) $('fsize').value = keep;
+    const reads = ADDS.map((_, i) => $('rd' + i) ? $('rd' + i).value : '');
+    buildAdds(); reads.forEach((r, i) => { if ($('rd' + i)) $('rd' + i).value = r; });
+    calc(); calcCl(); calcFlow();
+  }
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
   // ---- Calculadora normal ----
   let expr = '', justDone = false;
@@ -471,6 +543,7 @@
   $('v').addEventListener('input', calc);
   $('cs').addEventListener('input', calcCl);
   $('c0').addEventListener('input', calcCl);
+  applyStatic(); fillSizes(); calc(); calcFlow();
   buildAdds();
   calcCl();
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
